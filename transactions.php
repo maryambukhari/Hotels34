@@ -1,0 +1,12 @@
+include 'db.php';
+session_start();
+if (!isset($_SESSION['user_id'])) header('Location: login.php');
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$per_page = 10;
+$offset = ($page - 1) * $per_page;
+$stmt = $pdo->prepare("SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC LIMIT ? OFFSET ?");
+$stmt->execute([$_SESSION['user_id'], $per_page, $offset]);
+$transactions = $stmt->fetchAll();
+$count_stmt = $pdo->prepare("SELECT COUNT(*) FROM transactions WHERE user_id = ?");
+$count_stmt->execute([$_SESSION['user_id']]);
+$total_pages = ceil($count_stmt->fetchColumn() / $per_page);
